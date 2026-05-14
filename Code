@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 95</title>
+    <style>
+        :root {
+            --surface: #c0c0c0;
+            --button-highlight: #ffffff;
+            --button-shadow: #808080;
+            --button-face: #c0c0c0;
+            --window-bg: #ffffff;
+            --title-bar: #000080;
+            --title-text: #ffffff;
+            --desktop: #008080;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft Sans Serif', 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+            background: var(--desktop);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            cursor: default;
+        }
+
+        /* ========== DESKTOP ========== */
+        #desktop {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 30px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 20px;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 75px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 11px;
+            text-align: center;
+            text-shadow: 1px 1px 0 #000;
+            padding: 8px 4px;
+            border: 1px solid transparent;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(0, 0, 128, 0.25);
+            border: 1px dotted rgba(255, 255, 255, 0.5);
+        }
+
+        .desktop-icon:active {
+            background: rgba(0, 0, 128, 0.5);
+        }
+
+        .desktop-icon .icon-img {
+            font-size: 32px;
+            margin-bottom: 4px;
+            pointer-events: none;
+        }
+
+        .desktop-icon span {
+            pointer-events: none;
+            word-wrap: break-word;
+            max-width: 70px;
+        }
+
+        /* ========== TASKBAR ========== */
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: var(--surface);
+            border-top: 2px solid var(--button-highlight);
+            display: flex;
+            align-items: center;
+            padding: 3px 4px;
+            gap: 3px;
+            z-index: 10000;
+        }
+
+        #start-btn {
+            height: 22px;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        #start-btn:active,
+        #start-btn.active {
+            border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+            padding: 2px 4px 0 8px;
+        }
+
+        #taskbar-windows {
+            flex: 1;
+            display: flex;
+            gap: 3px;
+            overflow-x: auto;
+            height: 22px;
+        }
+
+        .taskbar-window {
+            height: 22px;
+            padding: 0 8px;
+            min-width: 100px;
+            max-width: 180px;
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            cursor: pointer;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 18px;
+        }
+
+        .taskbar-window.active {
+            border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+            background: #a0a0a0;
+        }
+
+        #system-tray {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 22px;
+            padding: 0 8px;
+            border: 2px solid;
+            border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+            font-size: 11px;
+            line-height: 18px;
+        }
+
+        /* ========== START MENU ========== */
+        #start-menu {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 200px;
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            display: none;
+            z-index: 9999;
+            padding: 2px;
+        }
+
+        #start-menu.show {
+            display: block;
+        }
+
+        .start-menu-side {
+            background: #808080;
+            color: #c0c0c0;
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            padding: 8px 4px;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            float: left;
+            height: 100%;
+            min-height: 200px;
+        }
+
+        .start-menu-items {
+            margin-left: 25px;
+            padding: 4px;
+        }
+
+        .start-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .start-menu-item:hover {
+            background: var(--title-bar);
+            color: #fff;
+        }
+
+        .start-menu-divider {
+            border-top: 1px solid var(--button-shadow);
+            border-bottom: 1px solid var(--button-highlight);
+            margin: 4px 0;
+            height: 0;
+        }
+
+        /* ========== WINDOW ========== */
+        .window {
+            position: absolute;
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            min-width: 200px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .window.maximized {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: calc(100vh - 30px) !important;
+        }
+
+        .window.minimized {
+            display: none;
+        }
+
+        .window-title-bar {
+            background: var(--title-bar);
+            color: var(--title-text);
+            padding: 2px 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            font-size: 11px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .window-title-text {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .win-btn {
+            width: 16px;
+            height: 14px;
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            cursor: pointer;
+            font-size: 8px;
+            line-height: 10px;
+            text-align: center;
+            color: #000;
+            padding: 0;
+        }
+
+        .win-btn:active {
+            border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+        }
+
+        .window-body {
+            flex: 1;
+            padding: 8px;
+            background: #fff;
+            border: 2px solid;
+            border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+            margin: 2px;
+            overflow: auto;
+            font-size: 11px;
+        }
+
+        .window-resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            cursor: se-resize;
+            background: linear-gradient(135deg, 
+                transparent 0%, transparent 50%, 
+                var(--button-shadow) 50%, var(--button-shadow) 60%, 
+                transparent 60%, transparent 70%,
+                var(--button-shadow) 70%, var(--button-shadow) 80%,
+                transparent 80%);
+        }
+
+        /* ========== WIN95 BUTTON ========== */
+        .win95-btn {
+            padding: 4px 12px;
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            cursor: pointer;
+            font-size: 11px;
+            font-family: inherit;
+        }
+
+        .win95-btn:active {
+            border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+        }
+
+        /* ========== DIALOG ========== */
+        .win95-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 50000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .win95-dialog {
+            background: var(--surface);
+            border: 2px solid;
+            border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+            padding: 16px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .win95-dialog-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .win95-dialog-text {
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+        }
+
+        /* ========== NOTEPAD ========== */
+        .notepad-textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            font-family: 'Fixedsys', 'Courier New', monospace;
+            font-size: 12px;
+            outline: none;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DESKTOP ICONS -->
+    <div id="desktop">
+        <div class="desktop-icon" data-app="mycomputer">
+            <div class="icon-img">🖥️</div>
+            <span>Мой компьютер</span>
+        </div>
+        <div class="desktop-icon" data-app="recycle">
+            <div class="icon-img">🗑️</div>
+            <span>Корзина</span>
+        </div>
+        <div class="desktop-icon" data-app="notepad">
+            <div class="icon-img">📝</div>
+            <span>Блокнот</span>
+        </div>
+        <div class="desktop-icon" data-app="calculator">
+            <div class="icon-img">🔢</div>
+            <span>Калькулятор</span>
+        </div>
+        <div class="desktop-icon" data-app="about">
+            <div class="icon-img">ℹ️</div>
+            <span>О системе</span>
+        </div>
+    </div>
+
+    <!-- TASKBAR -->
+    <div id="taskbar">
+        <button id="start-btn">
+            <span>🪟</span> Пуск
+        </button>
+        <div id="taskbar-windows"></div>
+        <div id="system-tray">🕐 <span id="clock">12:00</span></div>
+    </div>
+
+    <!-- START MENU -->
+    <div id="start-menu">
+        <div class="start-menu-side">Windows 95</div>
+        <div class="start-menu-items">
+            <div class="start-menu-item" data-app="notepad">📝 Блокнот</div>
+            <div class="start-menu-item" data-app="calculator">🔢 Калькулятор</div>
+            <div class="start-menu-divider"></div>
+            <div class="start-menu-item" data-app="about">ℹ️ О системе</div>
+            <div class="start-menu-divider"></div>
+            <div class="start-menu-item" id="shutdown-btn">⏻ Завершение работы</div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== WINDOWS 95 ENGINE ====================
+
+        const desktop = document.getElementById('desktop');
+        const taskbarWindows = document.getElementById('taskbar-windows');
+        const startBtn = document.getElementById('start-btn');
+        const startMenu = document.getElementById('start-menu');
+        const clockEl = document.getElementById('clock');
+        const shutdownBtn = document.getElementById('shutdown-btn');
+
+        let windows = [];
+        let windowIdCounter = 0;
+        let activeWindowId = null;
+        let zIndexCounter = 100;
+        let startMenuOpen = false;
+
+        // ==================== CLOCK ====================
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            clockEl.textContent = `${h}:${m}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ==================== START MENU ====================
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startMenuOpen = !startMenuOpen;
+            startMenu.classList.toggle('show', startMenuOpen);
+            startBtn.classList.toggle('active', startMenuOpen);
+        });
+
+        document.addEventListener('click', () => {
+            if (startMenuOpen) {
+                startMenuOpen = false;
+                startMenu.classList.remove('show');
+                startBtn.classList.remove('active');
+            }
+        });
+
+        startMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // ==================== CREATE WINDOW ====================
+        function createWindow(title, icon, x, y, width, height, content) {
+            const id = ++windowIdCounter;
+            const win = document.createElement('div');
+            win.className = 'window';
+            win.id = `window-${id}`;
+            win.style.left = x + 'px';
+            win.style.top = y + 'px';
+            win.style.width = width + 'px';
+            win.style.height = height + 'px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+            <div class="window-title-bar" data-window-id="${id}">
+              <div class="window-title-text">${icon} ${title}</div>
+              <div class="window-controls">
+                <button class="win-btn minimize-btn" data-action="minimize">_</button>
+                <button class="win-btn maximize-btn" data-action="maximize">□</button>
+                <button class="win-btn close-btn" data-action="close">✕</button>
+              </div>
+            </div>
+            <div class="window-body">${content || ''}</div>
+            <div class="window-resize-handle"></div>
+          `;
+
+            desktop.appendChild(win);
+
+            // Сохраняем данные окна
+            const windowData = {
+                id,
+                title,
+                icon,
+                element: win,
+                x,
+                y,
+                width,
+                height,
+                minimized: false,
+                maximized: false,
+                prevState: null,
+            };
+
+            windows.push(windowData);
+
+            // Добавляем в панель задач
+            addTaskbarWindow(windowData);
+
+            // Активируем окно
+            activateWindow(id);
+
+            // Обработчики кнопок
+            win.querySelector('.close-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeWindow(id);
+            });
+
+            win.querySelector('.minimize-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                minimizeWindow(id);
+            });
+
+            win.querySelector('.maximize-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMaximize(id);
+            });
+
+            // Активация при клике
+            win.addEventListener('mousedown', () => activateWindow(id));
+
+            // Перетаскивание
+            const titleBar = win.querySelector('.window-title-bar');
+            let isDragging = false;
+            let dragOffsetX, dragOffsetY;
+
+            titleBar.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.window-controls')) return;
+                const winData = getWindowData(id);
+                if (winData && winData.maximized) return;
+
+                isDragging = true;
+                const rect = win.getBoundingClientRect();
+                dragOffsetX = e.clientX - rect.left;
+                dragOffsetY = e.clientY - rect.top;
+                win.style.cursor = 'move';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const winData = getWindowData(id);
+                if (!winData) return;
+
+                const newX = e.clientX - dragOffsetX;
+                const newY = e.clientY - dragOffsetY;
+
+                win.style.left = newX + 'px';
+                win.style.top = Math.max(0, newY) + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    const winData = getWindowData(id);
+                    if (winData) {
+                        const rect = win.getBoundingClientRect();
+                        winData.x = rect.left;
+                        winData.y = rect.top;
+                    }
+                    win.style.cursor = '';
+                    isDragging = false;
+                }
+            });
+
+            // Resize
+            const resizeHandle = win.querySelector('.window-resize-handle');
+            let isResizing = false;
+            let resizeStartX, resizeStartY, resizeStartW, resizeStartH;
+
+            resizeHandle.addEventListener('mousedown', (e) => {
+                const winData = getWindowData(id);
+                if (winData && winData.maximized) return;
+
+                isResizing = true;
+                resizeStartX = e.clientX;
+                resizeStartY = e.clientY;
+                resizeStartW = win.offsetWidth;
+                resizeStartH = win.offsetHeight;
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                const newW = Math.max(200, resizeStartW + (e.clientX - resizeStartX));
+                const newH = Math.max(100, resizeStartH + (e.clientY - resizeStartY));
+                win.style.width = newW + 'px';
+                win.style.height = newH + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizing) {
+                    const winData = getWindowData(id);
+                    if (winData) {
+                        winData.width = win.offsetWidth;
+                        winData.height = win.offsetHeight;
+                    }
+                    isResizing = false;
+                }
+            });
+
+            return windowData;
+        }
+
+        function getWindowData(id) {
+            return windows.find(w => w.id === id);
+        }
+
+        function activateWindow(id) {
+            const winData = getWindowData(id);
+            if (!winData) return;
+
+            activeWindowId = id;
+            winData.element.style.zIndex = ++zIndexCounter;
+
+            // Обновляем таскбар
+            document.querySelectorAll('.taskbar-window').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.windowId) === id);
+            });
+
+            // Подсветка всех окон
+            windows.forEach(w => {
+                w.element.querySelector('.window-title-bar').style.background =
+                    w.id === id ? '#000080' : '#808080';
+            });
+        }
+
+        function closeWindow(id) {
+            const winData = getWindowData(id);
+            if (!winData) return;
+
+            winData.element.remove();
+            windows = windows.filter(w => w.id !== id);
+
+            // Удаляем из таскбара
+            const taskbarBtn = document.querySelector(`.taskbar-window[data-window-id="${id}"]`);
+            if (taskbarBtn) taskbarBtn.remove();
+
+            if (activeWindowId === id) {
+                activeWindowId = windows.length > 0 ? windows[windows.length - 1].id : null;
+                if (activeWindowId) activateWindow(activeWindowId);
+            }
+        }
+
+        function minimizeWindow(id) {
+            const winData = getWindowData(id);
+            if (!winData) return;
+
+            if (winData.maximized) {
+                winData.element.classList.remove('maximized');
+                winData.maximized = false;
+            }
+
+            winData.element.classList.add('minimized');
+            winData.minimized = true;
+
+            if (activeWindowId === id) {
+                const visible = windows.find(w => !w.minimized && w.id !== id);
+                if (visible) activateWindow(visible.id);
+                else activeWindowId = null;
+            }
+        }
+
+        function restoreWindow(id) {
+            const winData = getWindowData(id);
+            if (!winData) return;
+
+            winData.element.classList.remove('minimized');
+            winData.minimized = false;
+            activateWindow(id);
+        }
+
+        function toggleMaximize(id) {
+            const winData = getWindowData(id);
+            if (!winData) return;
+
+            if (winData.minimized) {
+                restoreWindow(id);
+            }
+
+            if (winData.maximized) {
+                // Восстановить
+                winData.element.classList.remove('maximized');
+                winData.element.style.left = winData.prevState.x + 'px';
+                winData.element.style.top = winData.prevState.y + 'px';
+                winData.element.style.width = winData.prevState.width + 'px';
+                winData.element.style.height = winData.prevState.height + 'px';
+                winData.maximized = false;
+            } else {
+                // Развернуть
+                const rect = winData.element.getBoundingClientRect();
+                winData.prevState = {
+                    x: rect.left,
+                    y: rect.top,
+                    width: winData.element.offsetWidth,
+                    height: winData.element.offsetHeight,
+                };
+                winData.element.classList.add('maximized');
+                winData.maximized = true;
+            }
+        }
+
+        function addTaskbarWindow(winData) {
+            const btn = document.createElement('div');
+            btn.className = 'taskbar-window';
+            btn.dataset.windowId = winData.id;
+            btn.textContent = winData.title;
+            btn.title = winData.title;
+
+            btn.addEventListener('click', () => {
+                const wd = getWindowData(winData.id);
+                if (!wd) return;
+
+                if (wd.minimized) {
+                    restoreWindow(winData.id);
+                } else if (activeWindowId === winData.id) {
+                    minimizeWindow(winData.id);
+                } else {
+                    activateWindow(winData.id);
+                }
+            });
+
+            taskbarWindows.appendChild(btn);
+        }
+
+        // ==================== APP LAUNCHERS ====================
+        function launchApp(appId) {
+            switch (appId) {
+                case 'mycomputer':
+                    createWindow('Мой компьютер', '🖥️', 50, 50, 500, 350,
+                        '<p>💾 <b>Диск A:</b> Дискета 3.5"</p>' +
+                        '<p>💿 <b>Диск C:</b> Локальный диск</p>' +
+                        '<p>📁 <b>Папка:</b> Мои документы</p>' +
+                        '<p>🖨️ <b>Принтеры</b></p>' +
+                        '<p>🕹️ <b>Панель управления</b></p>');
+                    break;
+
+                case 'recycle':
+                    createWindow('Корзина', '🗑️', 80, 80, 400, 300,
+                        '<p>📂 Корзина пуста</p>' +
+                        '<p style="color:#808080;">Перетащите файлы сюда для удаления</p>');
+                    break;
+
+                case 'notepad':
+                    createWindow('Блокнот', '📝', 100, 100, 450, 350,
+                        '<textarea class="notepad-textarea" placeholder="Введите текст..."></textarea>');
+                    break;
+
+                case 'calculator':
+                    createWindow('Калькулятор', '🔢', 200, 150, 250, 320,
+                        '<div style="text-align:center;">' +
+                        '<input type="text" id="calc-display" style="width:90%;margin:8px;font-size:16px;text-align:right;" value="0" readonly>' +
+                        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;">' +
+                        ['7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+', 'C'].map(btn =>
+                            `<button class="win95-btn calc-btn" style="padding:8px;">${btn}</button>`
+                        ).join('') +
+                        '</div></div>');
+                    // Калькулятор будет работать после небольшой задержки
+                    setTimeout(() => {
+                        const display = document.getElementById('calc-display');
+                        if (!display) return;
+                        let calcValue = '0';
+                        let calcOp = '';
+                        let calcPrev = 0;
+
+                        document.querySelectorAll('.calc-btn').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                const val = btn.textContent;
+                                if (val === 'C') {
+                                    calcValue = '0';
+                                    calcOp = '';
+                                    calcPrev = 0;
+                                } else if (['+', '-', '*', '/'].includes(val)) {
+                                    calcPrev = parseFloat(calcValue);
+                                    calcOp = val;
+                                    calcValue = '0';
+                                } else if (val === '=') {
+                                    const curr = parseFloat(calcValue);
+                                    switch (calcOp) {
+                                        case '+':
+                                            calcValue = String(calcPrev + curr);
+                                            break;
+                                        case '-':
+                                            calcValue = String(calcPrev - curr);
+                                            break;
+                                        case '*':
+                                            calcValue = String(calcPrev * curr);
+                                            break;
+                                        case '/':
+                                            calcValue = curr !== 0 ? String(calcPrev /
+                                                curr) : 'Ошибка';
+                                            break;
+                                        default:
+                                            calcValue = String(curr);
+                                    }
+                                    calcOp = '';
+                                } else if (val === '.') {
+                                    if (!calcValue.includes('.')) calcValue += '.';
+                                } else {
+                                    calcValue = calcValue === '0' ? val : calcValue + val;
+                                }
+                                display.value = calcValue;
+                            });
+                        });
+                    }, 100);
+                    break;
+
+                case 'about':
+                    createWindow('О системе', 'ℹ️', 300, 200, 350, 250,
+                        '<div style="text-align:center;">' +
+                        '<h2>Windows 95</h2>' +
+                        '<p>Версия 4.00.950</p>' +
+                        '<p>Псевдо-операционная система</p>' +
+                        '<p>Сделано на HTML/CSS/JS</p>' +
+                        '<br><p style="color:#808080;">© 2024 Retro PC</p>' +
+                        '</div>');
+                    break;
+            }
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.querySelectorAll('.desktop-icon').forEach(icon => {
+            icon.addEventListener('dblclick', () => {
+                launchApp(icon.dataset.app);
+            });
+        });
+
+        document.querySelectorAll('.start-menu-item[data-app]').forEach(item => {
+            item.addEventListener('click', () => {
+                launchApp(item.dataset.app);
+                startMenu.classList.remove('show');
+                startMenuOpen = false;
+                startBtn.classList.remove('active');
+            });
+        });
+
+        // Shutdown
+        shutdownBtn.addEventListener('click', () => {
+            startMenu.classList.remove('show');
+            startMenuOpen = false;
+            startBtn.classList.remove('active');
+
+            const overlay = document.createElement('div');
+            overlay.className = 'win95-dialog-overlay';
+            overlay.innerHTML = `
+            <div class="win95-dialog">
+              <div class="win95-dialog-icon">⏻</div>
+              <div class="win95-dialog-text">Вы действительно хотите завершить работу?</div>
+              <button class="win95-btn" id="shutdown-yes">Да</button>
+              <button class="win95-btn" id="shutdown-no">Нет</button>
+            </div>
+          `;
+            document.body.appendChild(overlay);
+
+            overlay.querySelector('#shutdown-yes').addEventListener('click', () => {
+                document.body.innerHTML = '<div style="background:#000;color:#fff;height:100vh;display:flex;justify-content:center;align-items:center;font-size:24px;">Теперь питание компьютера можно отключить</div>';
+            });
+
+            overlay.querySelector('#shutdown-no').addEventListener('click', () => {
+                overlay.remove();
+            });
+        });
+
+        // ==================== INITIAL STATE ====================
+        // Запускаем при старте
+        console.log('🪟 Windows 95 запущена');
+        console.log('Двойной клик по иконкам для открытия окон');
+        console.log('Кнопка Пуск → Завершение работы для выключения');
+
+        // Открываем "Мой компьютер" при запуске
+        setTimeout(() => launchApp('mycomputer'), 500);
+    </script>
+</body>
+</html>
